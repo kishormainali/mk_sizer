@@ -1,3 +1,7 @@
+## 1.0.1
+
+* Added `10.gap`: a responsive, axis-aware gap widget (`MKGap`) that scales with `.w` inside a `Row` and `.h` inside a `Column`, matching the main-axis detection used by `package:gap` but without depending on it.
+
 ## 1.0.0
 
 * Renamed the package to `mk_sizer` (import `package:mk_sizer/mk_sizer.dart`).

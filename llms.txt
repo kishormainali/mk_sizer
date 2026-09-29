@@ -1,0 +1,134 @@
+# mk_sizer
+
+> Flutter package for responsive/adaptive sizing. Wrap the app in `MKSizer`, pick
+> a design size (default `360x690`, the Figma/XD frame the numbers below were
+> designed against), then scale any number against the current screen with
+> extension getters like `.w`, `.h`, `.r`, `.sp`, and `.gap`.
+
+Package name: `mk_sizer`. Import with `package:mk_sizer/mk_sizer.dart`.
+Repository: https://github.com/kishormainali/mk_sizer
+Pub: https://pub.dev/packages/mk_sizer
+
+All extensions/widgets below scale 1:1 (no-op) until an `MKSizer` has built at
+least once above them in the tree, so they are always safe to call.
+
+## Setup
+
+Wrap the root of the app (or any subtree) in `MKSizer`:
+
+```dart
+MKSizer(
+  builder: (context) {
+    return MaterialApp(home: HomePage());
+  },
+);
+```
+
+- `designSize` (default `Size(360, 690)`): the reference size the numeric
+  literals below are authored against. Pass a different `Size` to match your
+  Figma/XD frame.
+- `rebuildOnChange` (default `true`): rebuilds the whole subtree when the
+  available size changes (rotation, window resize) so `10.w`-style extensions
+  stay correct even inside `const` widgets. Set `false` and use the
+  `context.w/h/r/sp/pw/ph` methods instead for narrower, per-widget rebuilds
+  (those are not tracked when `rebuildOnChange` is `false`).
+
+## Core `num` extensions (`MKSizeExt`, in `lib/src/mk_extension.dart`)
+
+Call these on any `num` literal, e.g. `20.w`, `15.sp`.
+
+- `.w` — scales by `screenWidth / designSize.width`. Use for widths.
+- `.h` — scales by `screenHeight / designSize.height`. Use for heights.
+- `.r` — scales by `min(widthScale, heightScale)`. Use for anything that
+  should stay uniform regardless of aspect ratio (radii, icon sizes, uniform
+  padding).
+- `.sp` — scales by the width scale (same as `.w`). Use for font sizes.
+- `.pw` — `this * screenWidth` (percentage-of-screen-width helper).
+- `.ph` — `this * screenHeight` (percentage-of-screen-height helper).
+- `.verticalSpace` — `SizedBox(height: this.h)`.
+- `.verticalSpaceRadius` — `SizedBox(height: this.r)`.
+- `.horizontalSpace` — `SizedBox(width: this.w)`.
+- `.horizontalSpaceRadius` — `SizedBox(width: this.r)`.
+- `.gap` — a responsive, axis-aware gap widget (`MKGap`, see below);
+  `10.gap` inside a `Row`/`Column`.
+
+## Responsive gap (`MKGap`, in `lib/src/mk_gap.dart`)
+
+`10.gap` returns an `MKGap`, a self-contained reimplementation of
+`package:gap`'s `Gap` (no dependency on that package). It inspects its actual
+`RenderFlex` parent at layout time to detect whether it sits in a `Row`
+(horizontal) or `Column`/`Flex` (vertical) — or a `Scrollable`'s
+`axisDirection` as a fallback when there is no direct `Flex` ancestor — and
+scales the value accordingly:
+
+- Horizontal parent → scaled with the same logic as `.w`.
+- Vertical parent → scaled with the same logic as `.h`.
+- Neither detected → falls back to `.r`.
+
+So the same `10.gap` call is correct whether it ends up between `Row` or
+`Column` children, without needing a `.w`/`.h` suffix. Construct it directly
+as `MKGap(10)` if you're not chaining off a numeric literal.
+
+Constraint (inherited from the `gap` package's design): `MKGap` must be a
+direct-ish descendant of a `Row`/`Column`/`Flex` — only `StatelessWidget`s or
+`StatefulWidget`s may sit between it and that `Flex` — or a descendant of a
+`Scrollable`. Otherwise it throws `FlutterError` at layout time.
+
+## `EdgeInsets` extension (`MKEdgeInsetsX`, in `lib/src/mk_extension.dart`)
+
+Call these on an existing `EdgeInsets` to scale every side:
+
+- `.r` — scales all four sides with `.r`.
+- `.w` — scales all four sides with `.w`.
+- `.h` — scales all four sides with `.h`.
+- `.wh` — scales `left`/`right` with `.w` and `top`/`bottom` with `.h`.
+
+## Responsive `EdgeInsets` constructors (`lib/src/mk_edgeinsets.dart`)
+
+Drop-in, pre-scaled replacements for `EdgeInsets`/`EdgeInsetsDirectional`
+constructors — pass raw design-space numbers, the scaling happens inside the
+constructor:
+
+- `MKEdgeInsets.fromLTRB(left, top, right, bottom)` — left/right via `.w`,
+  top/bottom via `.h`.
+- `MKEdgeInsets.all(value)` — via `.r`.
+- `MKEdgeInsets.only({left, top, right, bottom})` — left/right via `.w`,
+  top/bottom via `.h`.
+- `MKEdgeInsets.symmetric({vertical, horizontal})` — vertical via `.h`,
+  horizontal via `.w`.
+- `MKEdgeInsetsDirectional.all(value)` — via `.r`.
+- `MKEdgeInsetsDirectional.only({bottom, end, start, top})` — start/end via
+  `.w`, top/bottom via `.h`.
+- `MKEdgeInsetsDirectional.fromSTEB(start, top, end, bottom)` — start/end via
+  `.w`, top/bottom via `.h`.
+
+## Context-based sizing (`MKContextX`, in `lib/src/mk_model.dart`)
+
+Alternative to the `num` extensions that reads scale factors from an
+`InheritedModel` (`MKSizerModel`) instead of a global singleton. Prefer this
+with `MKSizer.rebuildOnChange: false`: each call site only rebuilds when the
+specific aspect it depends on (width/height/text) changes, rather than the
+whole subtree rebuilding on every resize.
+
+- `context.w(num v)`
+- `context.h(num v)`
+- `context.r(num v)` — depends on both width and height aspects.
+- `context.sp(num v)`
+- `context.pw(num v)`
+- `context.ph(num v)`
+
+Throws `FlutterError` if called with no `MKSizer` above the context in the
+tree (whereas the `num` extensions above degrade to 1:1 instead of throwing).
+
+## Notes for generating code against this package
+
+- Prefer the `num` extensions (`.w`, `.h`, `.r`, `.sp`, `.gap`, …) for typical
+  UI code; reach for `context.*` only when the caller explicitly wants
+  narrower rebuilds and has set `rebuildOnChange: false`.
+- Use `.sp` for font sizes, `.r` for radii/icon sizes/anything meant to look
+  the same regardless of aspect ratio, `.w`/`.h` for explicit
+  width/height dimensions, and `.gap` for spacing between `Row`/`Column`
+  children instead of a manually-axed `SizedBox`.
+- Don't wrap the same numeric literal in both a `num` extension and
+  `MKEdgeInsets`/`MKEdgeInsetsDirectional` — those constructors already scale
+  their arguments internally.

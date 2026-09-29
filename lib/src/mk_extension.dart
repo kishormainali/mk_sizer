@@ -27,6 +27,10 @@ extension MKSizeExt on num {
 
   Widget get horizontalSpaceRadius =>
       MKHelper().setHorizontalSpacingRadius(this);
+
+  /// A responsive gap (see [MKGap]) that fits itself to the direction of
+  /// its parent `Row`/`Column`, e.g. `10.gap`.
+  Widget get gap => MKGap(this);
 }
 
 extension MKEdgeInsetsX on EdgeInsets {

@@ -9,7 +9,7 @@ MK Size helper created using concept of responsive_sizer and flutter_screen_util
 
 ```yaml
 dependencies:
-  mk_sizer: ^1.0.0
+  mk_sizer: ^1.0.1
 ```
 
 ## Usage
@@ -59,6 +59,22 @@ Text(
   style: TextStyle(fontSize: 15.sp), 
 )
 ```
+
+### Gap
+<hr/>
+<br/>
+
+```dart
+Column(
+  children: [
+    Text('Above'),
+    10.gap,
+    Text('Below'),
+  ],
+)
+```
+
+`10.gap` is a responsive [`Gap`](https://pub.dev/packages/gap)-like widget: it detects whether its parent `Flex` is a `Row` or `Column` and scales with `.w` or `.h` accordingly, so the same call works in either direction.
 
 ### Notes
 <hr/>
