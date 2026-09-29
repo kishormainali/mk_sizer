@@ -1,13 +1,12 @@
-name: adaptive_sizer
+name: mk_sizer
 description: Adaptive Size helper created using concept of responsive_sizer and flutter_screen_util package.
-version: 0.0.4
-publish_to: none
-homepage: https://github.com/kishormainali/adaptive_sizer
-repository: https://github.com/kishormainali/adaptive_sizer
+version: 1.0.0
+homepage: https://github.com/kishormainali/mk_sizer
+repository: https://github.com/kishormainali/mk_sizer
 
 environment:
-  sdk: ">=3.2.0 <4.0.0"
-  flutter: ">=3.16.0"
+  sdk: ">=3.10.0 <4.0.0"
+  flutter: ">=3.38.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -16,6 +15,6 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^6.0.0
 
 flutter:

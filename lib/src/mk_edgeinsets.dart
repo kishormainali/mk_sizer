@@ -1,20 +1,11 @@
-import 'package:adaptive_sizer/adaptive_sizer.dart';
+import 'package:mk_sizer/mk_sizer.dart';
 import 'package:flutter/material.dart';
 
 /// A class that can be used to define edge insets with responsive insets.
-class REdgeInsets extends EdgeInsets {
+class MKEdgeInsets extends EdgeInsets {
   /// Creates adapt insets from offsets from the left, top, right, and bottom.
-  REdgeInsets.fromLTRB(
-    double left,
-    double top,
-    double right,
-    double bottom,
-  ) : super.fromLTRB(
-          left.w,
-          top.h,
-          right.w,
-          bottom.h,
-        );
+  MKEdgeInsets.fromLTRB(double left, double top, double right, double bottom)
+    : super.fromLTRB(left.w, top.h, right.w, bottom.h);
 
   /// Creates adapt insets where all the offsets are `value`.
   ///
@@ -23,11 +14,11 @@ class REdgeInsets extends EdgeInsets {
   /// Adapt height-pixel margin on all sides:
   ///
   /// ```dart
-  /// const REdgeInsets.all(8.0)
+  /// const MKEdgeInsets.all(8.0)
   /// ```
   /// {@end-tool}
 
-  REdgeInsets.all(double value) : super.all(value.r);
+  MKEdgeInsets.all(double value) : super.all(value.r);
 
   /// Creates adapt insets with only the given values non-zero.
   ///
@@ -36,20 +27,15 @@ class REdgeInsets extends EdgeInsets {
   /// Adapt left margin indent of 40 pixels:
   ///
   /// ```dart
-  /// const REdgeInsets.only(left: 40.0)
+  /// const MKEdgeInsets.only(left: 40.0)
   /// ```
   /// {@end-tool}
-  REdgeInsets.only({
+  MKEdgeInsets.only({
     double left = 0.0,
     double top = 0.0,
     double right = 0.0,
     double bottom = 0.0,
-  }) : super.only(
-          left: left.w,
-          top: top.h,
-          right: right.w,
-          bottom: bottom.h,
-        );
+  }) : super.only(left: left.w, top: top.h, right: right.w, bottom: bottom.h);
 
   /// Creates adapt insets with symmetrical vertical and horizontal offsets.
   ///
@@ -58,20 +44,15 @@ class REdgeInsets extends EdgeInsets {
   /// Adapt Eight pixel margin above and below, no horizontal margins:
   ///
   /// ```dart
-  /// const REdgeInsets.symmetric(vertical: 8.0)
+  /// const MKEdgeInsets.symmetric(vertical: 8.0)
   /// ```
   /// {@end-tool}
-  REdgeInsets.symmetric({
-    double vertical = 0.0,
-    double horizontal = 0.0,
-  }) : super.symmetric(
-          vertical: vertical.h,
-          horizontal: horizontal.w,
-        );
+  MKEdgeInsets.symmetric({double vertical = 0.0, double horizontal = 0.0})
+    : super.symmetric(vertical: vertical.h, horizontal: horizontal.w);
 }
 
 /// A class that can be used to define edge insets in a directionally aware way.
-class REdgeInsetsDirectional extends EdgeInsetsDirectional {
+class MKEdgeInsetsDirectional extends EdgeInsetsDirectional {
   /// Creates insets where all the offsets are `value`.
   ///
   /// {@tool snippet}
@@ -79,10 +60,10 @@ class REdgeInsetsDirectional extends EdgeInsetsDirectional {
   /// Adapt eight-pixel margin on all sides:
   ///
   /// ```dart
-  /// const REdgeInsetsDirectional.all(8.0)
+  /// const MKEdgeInsetsDirectional.all(8.0)
   /// ```
   /// {@end-tool}
-  REdgeInsetsDirectional.all(double value) : super.all(value.r);
+  MKEdgeInsetsDirectional.all(double value) : super.all(value.r);
 
   /// Creates insets with only the given values non-zero.
   ///
@@ -91,31 +72,21 @@ class REdgeInsetsDirectional extends EdgeInsetsDirectional {
   /// Adapt margin indent of 40 pixels on the leading side:
   ///
   /// ```dart
-  /// const REdgeInsetsDirectional.only(start: 40.0)
+  /// const MKEdgeInsetsDirectional.only(start: 40.0)
   /// ```
   /// {@end-tool}
-  REdgeInsetsDirectional.only({
+  MKEdgeInsetsDirectional.only({
     double bottom = 0,
     double end = 0,
     double start = 0,
     double top = 0,
-  }) : super.only(
-          bottom: bottom.r,
-          start: start.r,
-          end: end.r,
-          top: top.r,
-        );
+  }) : super.only(bottom: bottom.h, start: start.w, end: end.w, top: top.h);
 
   /// Creates adapt insets from offsets from the start, top, end, and bottom.
-  REdgeInsetsDirectional.fromSTEB(
+  MKEdgeInsetsDirectional.fromSTEB(
     double start,
     double top,
     double end,
     double bottom,
-  ) : super.fromSTEB(
-          start.r,
-          top.r,
-          end.r,
-          bottom.r,
-        );
+  ) : super.fromSTEB(start.w, top.h, end.w, bottom.h);
 }

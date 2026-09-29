@@ -1,7 +1,7 @@
 
-## Adaptive Sizer
+## MK Sizer
 
-Adaptive Size helper created using concept of responsive_sizer and flutter_screen_util package.
+MK Size helper created using concept of responsive_sizer and flutter_screen_util package.
 
 ## Installation
 <hr/>
@@ -9,11 +9,10 @@ Adaptive Size helper created using concept of responsive_sizer and flutter_scree
 
 ```yaml
 dependencies:
-  adaptive_sizer:
+  mk_sizer:
     git:
-      url: https://github.com/kishormainali/adaptive_sizer
+      url: https://github.com/kishormainali/mk_sizer
 ```
-
 
 ## Usage
 
@@ -23,15 +22,15 @@ dependencies:
 ### Import the package
 
 ```dart
-import 'package:adaptive_sizer/adaptive_sizer.dart';
+import 'package:mk_sizer/mk_sizer.dart';
 ```
 
-### Wrap MaterialApp with AdaptiveSizer widget
+### Wrap MaterialApp with MKSizer widget
 <hr/>
 <br/>
 
 ```dart
-AdaptiveSizer( 
+MKSizer( 
   builder: (context) {
     return MaterialApp(
       home: HomePage(),
@@ -58,7 +57,16 @@ Container(
 
 ```dart
 Text(
-  'Adaptive Sizer', 
+  'MK Sizer', 
   style: TextStyle(fontSize: 15.sp), 
 )
 ```
+
+### Notes
+<hr/>
+
+- `.w`/`.h`/`.sp`/`.r` scale 1:1 until an `MKSizer` has laid out.
+- `.sp` scales by width only; `.r` uses the smaller of the width/height scales.
+- Default design size is `360x690`; pass `designSize:` to change it.
+- Sizes are recalculated whenever the available size changes (rotation, window resize), and the whole subtree rebuilds so `10.w` is correct everywhere, including `const` widgets.
+- For fewer rebuilds, pass `rebuildOnChange: false` and use the context form (`context.w(20)`, `context.h(30)`, `context.sp(15)`); each widget then rebuilds only when its own axis changes. `10.w` is not tracked in that mode.
