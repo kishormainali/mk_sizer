@@ -9,9 +9,7 @@ MK Size helper created using concept of responsive_sizer and flutter_screen_util
 
 ```yaml
 dependencies:
-  mk_sizer:
-    git:
-      url: https://github.com/kishormainali/mk_sizer
+  mk_sizer: ^1.0.0
 ```
 
 ## Usage
