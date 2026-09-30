@@ -54,12 +54,13 @@ class MKHelper {
     _size = size;
     _designSize = designSize;
     final scaleWidth = size.width / designSize.width;
+    final scaleHeight = size.height / designSize.height;
     _instance
       .._screenWidth = size.width
       .._screenHeight = size.height
       .._scaleWidth = scaleWidth
-      .._scaleHeight = size.height / designSize.height
-      .._scaleRadius = min(scaleWidth, size.height / designSize.height)
+      .._scaleHeight = scaleHeight
+      .._scaleRadius = min(scaleWidth, scaleHeight)
       .._textScaleFactor = scaleWidth;
   }
 

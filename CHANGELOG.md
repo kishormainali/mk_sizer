@@ -1,3 +1,8 @@
+## 1.0.2
+
+* Added `MKSizedBox`, a `const`-capable `SizedBox` that scales width with `.w` and height with `.h`.
+* Added `MKPadding`, a `const`-capable `Padding` that scales horizontal insets with `.w` and vertical insets with `.h`, and updates on size change.
+
 ## 1.0.1
 
 * Added `10.gap`: a responsive, axis-aware gap widget (`MKGap`) that scales with `.w` inside a `Row` and `.h` inside a `Column`, matching the main-axis detection used by `package:gap` but without depending on it.

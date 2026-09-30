@@ -87,20 +87,17 @@ Call these on an existing `EdgeInsets` to scale every side:
 
 Drop-in, pre-scaled replacements for `EdgeInsets`/`EdgeInsetsDirectional`
 constructors — pass raw design-space numbers, the scaling happens inside the
-constructor:
+constructor. Left/right/start/end scale with `.w`, top/bottom with `.h`
+(`all` uses `.r`).
 
-- `MKEdgeInsets.fromLTRB(left, top, right, bottom)` — left/right via `.w`,
-  top/bottom via `.h`.
-- `MKEdgeInsets.all(value)` — via `.r`.
-- `MKEdgeInsets.only({left, top, right, bottom})` — left/right via `.w`,
-  top/bottom via `.h`.
-- `MKEdgeInsets.symmetric({vertical, horizontal})` — vertical via `.h`,
-  horizontal via `.w`.
-- `MKEdgeInsetsDirectional.all(value)` — via `.r`.
-- `MKEdgeInsetsDirectional.only({bottom, end, start, top})` — start/end via
-  `.w`, top/bottom via `.h`.
-- `MKEdgeInsetsDirectional.fromSTEB(start, top, end, bottom)` — start/end via
-  `.w`, top/bottom via `.h`.
+`MKPadding(padding:, child:)` is a `Padding` with a `const` constructor that
+scales horizontal insets with `.w` and vertical insets with `.h` and re-scales
+on size change, e.g.
+`const MKPadding(padding: EdgeInsets.all(16), child: ...)`.
+
+`MKSizedBox({width, height, child})` is a `SizedBox` with a `const` constructor
+that scales `width` with `.w` and `height` with `.h` and re-scales on size
+change.
 
 ## Context-based sizing (`MKContextX`, in `lib/src/mk_model.dart`)
 

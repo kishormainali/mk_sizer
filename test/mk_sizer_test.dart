@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mk_sizer/mk_sizer.dart';
 
@@ -73,6 +74,52 @@ void main() {
     expect([v.height, hs.width, vr.height], [6, 8, 6]);
     expect(MKEdgeInsets.all(1).left, 6);
     expect(MKEdgeInsets.symmetric(vertical: 1, horizontal: 1).horizontal, 16);
+  });
+
+  testWidgets('const MKPadding scales horizontal by .w and vertical by .h', (
+    t,
+  ) async {
+    await t.pumpWidget(
+      MediaQuery(
+        data: const MediaQueryData(),
+        child: Directionality(
+          textDirection: TextDirection.ltr,
+          child: MKSizer(
+            designSize: const Size(100, 100),
+            builder: (_) => const MKPadding(
+              padding: EdgeInsets.fromLTRB(1, 2, 3, 4),
+              child: SizedBox(),
+            ),
+          ),
+        ),
+      ),
+    );
+    // scaleW 8, scaleH 6
+    expect(
+      t.renderObject<RenderPadding>(find.byType(MKPadding)).padding,
+      const EdgeInsets.fromLTRB(8, 12, 24, 24),
+    );
+  });
+
+  testWidgets('const MKSizedBox scales width by .w and height by .h', (
+    t,
+  ) async {
+    await t.pumpWidget(
+      MediaQuery(
+        data: const MediaQueryData(),
+        child: Directionality(
+          textDirection: TextDirection.ltr,
+          child: MKSizer(
+            designSize: const Size(100, 100),
+            builder: (_) => const Center(
+              child: MKSizedBox(width: 1, height: 1, child: Placeholder()),
+            ),
+          ),
+        ),
+      ),
+    );
+    // scaleW 8, scaleH 6
+    expect(t.getSize(find.byType(MKSizedBox)), const Size(8, 6));
   });
 
   testWidgets('unbounded constraints fall back to screen size', (t) async {

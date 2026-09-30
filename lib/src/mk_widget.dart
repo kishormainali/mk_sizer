@@ -8,10 +8,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-part 'mk_helper.dart';
 part 'mk_extension.dart';
-part 'mk_model.dart';
 part 'mk_gap.dart';
+part 'mk_helper.dart';
+part 'mk_model.dart';
+part 'mk_padding.dart';
+part 'mk_sized_box.dart';
 
 class MKSizer extends StatelessWidget {
   const MKSizer({
