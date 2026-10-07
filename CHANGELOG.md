@@ -1,3 +1,12 @@
+## 1.1.0
+
+* Added `MKSizer.respectAspectRatio` (default `false`): blends the width/height scales toward their mean as the device's aspect ratio diverges from `designSize`'s, so layouts stretch less on very differently shaped screens (e.g. tablets vs. a phone mockup). No-op when the aspect ratios match.
+* Added `MKSizer.minScaleFactor` / `maxScaleFactor` to clamp the `.w` / `.h` / `.r` scales (only when `respectAspectRatio` is true).
+* Added `MKSizer.minTextScaleFactor` / `maxTextScaleFactor` to clamp the `.sp` scale independently of layout scales (applies regardless of `respectAspectRatio`). `context.sp` uses the same clamped scale.
+* Added `MKResponsiveBuilder`, `MKDeviceType`, `context.deviceType` and `context.resValue(...)` for per-device-tier widgets/values (breakpoints 360 / 600 / 1024 by default).
+* `MKHelper.changed` / `MKHelper.init` accept the new options; `MKSizerModel` notifies dependents correctly when they change.
+* Added tests.
+
 ## 1.0.2
 
 * Added `MKSizedBox`, a `const`-capable `SizedBox` that scales width with `.w` and height with `.h`.

@@ -10,17 +10,46 @@ class MKSizerModel extends InheritedModel<MKAspect> {
     super.key,
     required this.size,
     required this.designSize,
+    this.respectAspectRatio = false,
+    this.minScaleFactor,
+    this.maxScaleFactor,
+    this.minTextScaleFactor,
+    this.maxTextScaleFactor,
     required super.child,
   });
 
   final Size size;
   final Size designSize;
+  final bool respectAspectRatio;
+  final double? minScaleFactor;
+  final double? maxScaleFactor;
 
-  double get scaleWidth => size.width / designSize.width;
+  /// Clamp applied to [scaleText] independently of [minScaleFactor]/
+  /// [maxScaleFactor], so text can stay more (or less) uniform across
+  /// devices than layout dimensions.
+  final double? minTextScaleFactor;
+  final double? maxTextScaleFactor;
 
-  double get scaleHeight => size.height / designSize.height;
+  ({double width, double height}) get _scales => _computeScales(
+    size,
+    designSize,
+    respectAspectRatio: respectAspectRatio,
+    minScaleFactor: minScaleFactor,
+    maxScaleFactor: maxScaleFactor,
+  );
+
+  double get scaleWidth => _scales.width;
+
+  double get scaleHeight => _scales.height;
 
   double get scaleRadius => min(scaleWidth, scaleHeight);
+
+  double get scaleText {
+    var text = scaleWidth;
+    if (minTextScaleFactor != null) text = max(text, minTextScaleFactor!);
+    if (maxTextScaleFactor != null) text = min(text, maxTextScaleFactor!);
+    return text;
+  }
 
   static MKSizerModel of(BuildContext context, MKAspect aspect) {
     final model = InheritedModel.inheritFrom<MKSizerModel>(
@@ -35,22 +64,42 @@ class MKSizerModel extends InheritedModel<MKAspect> {
 
   @override
   bool updateShouldNotify(MKSizerModel old) =>
-      size != old.size || designSize != old.designSize;
+      size != old.size ||
+      designSize != old.designSize ||
+      respectAspectRatio != old.respectAspectRatio ||
+      minScaleFactor != old.minScaleFactor ||
+      maxScaleFactor != old.maxScaleFactor ||
+      minTextScaleFactor != old.minTextScaleFactor ||
+      maxTextScaleFactor != old.maxTextScaleFactor;
 
   @override
   bool updateShouldNotifyDependent(
     MKSizerModel old,
     Set<MKAspect> dependencies,
   ) {
+    // Blending couples both axes together, so any input change can affect
+    // both scaleWidth and scaleHeight.
+    final blended = respectAspectRatio || old.respectAspectRatio;
+    final anyChanged =
+        size != old.size ||
+        designSize != old.designSize ||
+        minScaleFactor != old.minScaleFactor ||
+        maxScaleFactor != old.maxScaleFactor;
     final w =
+        blended && anyChanged ||
         size.width != old.size.width ||
         designSize.width != old.designSize.width;
     final h =
+        blended && anyChanged ||
         size.height != old.size.height ||
         designSize.height != old.designSize.height;
+    final text =
+        w ||
+        minTextScaleFactor != old.minTextScaleFactor ||
+        maxTextScaleFactor != old.maxTextScaleFactor;
     return (dependencies.contains(MKAspect.width) && w) ||
         (dependencies.contains(MKAspect.height) && h) ||
-        (dependencies.contains(MKAspect.text) && w);
+        (dependencies.contains(MKAspect.text) && text);
   }
 }
 
@@ -67,7 +116,7 @@ extension MKContextX on BuildContext {
     return v * MKSizerModel.of(this, MKAspect.height).scaleRadius;
   }
 
-  double sp(num v) => v * MKSizerModel.of(this, MKAspect.text).scaleWidth;
+  double sp(num v) => v * MKSizerModel.of(this, MKAspect.text).scaleText;
 
   double pw(num v) => v * MKSizerModel.of(this, MKAspect.width).size.width;
 

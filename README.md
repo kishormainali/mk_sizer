@@ -9,7 +9,7 @@ MK Size helper created using concept of responsive_sizer and flutter_screen_util
 
 ```yaml
 dependencies:
-  mk_sizer: ^1.0.2
+  mk_sizer: ^1.1.0
 ```
 
 ## Usage
@@ -75,6 +75,41 @@ Column(
 ```
 
 `10.gap` is a responsive [`Gap`](https://pub.dev/packages/gap)-like widget: it detects whether its parent `Flex` is a `Row` or `Column` and scales with `.w` or `.h` accordingly, so the same call works in either direction.
+
+### Aspect ratio and scale limits
+<hr/>
+<br/>
+
+```dart
+MKSizer(
+  designSize: Size(430, 932),
+  respectAspectRatio: true,
+  minScaleFactor: 0.8,
+  maxScaleFactor: 1.4,
+  minTextScaleFactor: 0.9,
+  maxTextScaleFactor: 1.1,
+  builder: (context) => MaterialApp(home: HomePage()),
+);
+```
+
+- `respectAspectRatio` blends the width/height scales toward each other as the device's aspect ratio diverges from `designSize`'s, so layouts stretch less on tablets. Default `false` (independent per-axis scaling).
+- `minScaleFactor` / `maxScaleFactor` clamp `.w`/`.h`/`.r` when `respectAspectRatio` is true.
+- `minTextScaleFactor` / `maxTextScaleFactor` clamp `.sp` independently, regardless of `respectAspectRatio`.
+
+### Responsive builder
+<hr/>
+<br/>
+
+```dart
+MKResponsiveBuilder(
+  mobile: (context) => MobileLayout(),
+  tablet: (context) => TabletLayout(),
+);
+
+final padding = context.resValue(mobile: 16.0, tablet: 24.0, desktop: 32.0);
+```
+
+Tiers come from the `MediaQuery` width (`smallMobile` < 360 <= `mobile` < 600 <= `tablet` < 1024 <= `desktop`); missing tiers fall back to the next-smaller one, ultimately `mobile`.
 
 ### Notes
 <hr/>

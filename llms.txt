@@ -33,6 +33,23 @@ MKSizer(
   `context.w/h/r/sp/pw/ph` methods instead for narrower, per-widget rebuilds
   (those are not tracked when `rebuildOnChange` is `false`).
 
+- `respectAspectRatio` (default `false`): blends the width/height scales toward
+  their mean as the device aspect ratio diverges from `designSize`'s, reducing
+  stretch on e.g. tablets. No-op when aspect ratios match.
+- `minScaleFactor` / `maxScaleFactor`: clamp `.w`/`.h`/`.r` scales (applied
+  with `respectAspectRatio`).
+- `minTextScaleFactor` / `maxTextScaleFactor`: clamp the `.sp` scale
+  independently of layout scales (always applied; `context.sp` too).
+
+## Responsive builder (`lib/src/mk_responsive_builder.dart`)
+
+- `MKResponsiveBuilder(mobile:, smallMobile:, tablet:, desktop:)` picks a
+  builder by `MediaQuery` width (breakpoints 360 / 600 / 1024, overridable);
+  missing tiers fall back to the next-smaller tier, ultimately `mobile`.
+- `context.deviceType` returns an `MKDeviceType`.
+- `context.resValue(mobile: .., tablet: .., desktop: ..)` picks a value the
+  same way.
+
 ## Core `num` extensions (`MKSizeExt`, in `lib/src/mk_extension.dart`)
 
 Call these on any `num` literal, e.g. `20.w`, `15.sp`.
