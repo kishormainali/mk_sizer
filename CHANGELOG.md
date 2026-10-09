@@ -1,3 +1,11 @@
+## 1.2.0
+
+* `minScaleFactor` / `maxScaleFactor` now clamp `.w` / `.h` / `.r` even when `respectAspectRatio` is false (previously silently ignored), so tablets/foldables can be capped.
+* Added `MKSizer.heightMode` (`MKHeightMode.screen` default, `safeArea`, `width`) to stop tall Android phones inflating `.h` relative to `.w`. `safeArea` subtracts the notch/cutout, status bar and navigation bar (and landscape side cutouts from the width) when `MKSizer` spans the window, and re-measures when they change; `.ph`/`.pw` then refer to the usable area.
+* Added `MKSizer.designPadding`: the system UI (status bar/notch/home indicator) included in `designSize`, subtracted alongside the device's bars in `safeArea` mode.
+* Added `MKSizer.minSystemTextScale` / `maxSystemTextScale` to clamp the OS font-size setting for all descendant text, for consistent fonts across Android and iOS.
+* Added Android device-matrix tests.
+
 ## 1.1.0
 
 * Added `MKSizer.respectAspectRatio` (default `false`): blends the width/height scales toward their mean as the device's aspect ratio diverges from `designSize`'s, so layouts stretch less on very differently shaped screens (e.g. tablets vs. a phone mockup). No-op when the aspect ratios match.

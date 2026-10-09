@@ -6,6 +6,23 @@
 
 part of 'mk_widget.dart';
 
+/// How `.h` (and `.r`) derive their scale.
+enum MKHeightMode {
+  /// Height scales from the measured height (the original behavior).
+  screen,
+
+  /// Like [screen], but the notch/cutout, status bar and navigation bar are
+  /// subtracted from the height (and landscape side cutouts from the width)
+  /// when the `MKSizer` spans the whole window (i.e. sits above `MaterialApp`),
+  /// and re-measured when they change.
+  /// Tall Android phones with 3-button navigation stop over-inflating `.h`.
+  safeArea,
+
+  /// `.h` uses the width scale, so layouts never stretch vertically on tall
+  /// or short screens. Best for scrollable, width-driven UIs.
+  width,
+}
+
 /// Raw per-axis scale of [size] against [designSize].
 ///
 /// When [respectAspectRatio] is true, width/height are blended toward their
@@ -13,29 +30,35 @@ part of 'mk_widget.dart';
 /// elements scale less independently (less stretch) on screens with a very
 /// different shape than the design (e.g. a wide tablet vs. a narrow phone
 /// mockup). On a device whose aspect ratio matches the design's exactly,
-/// this is a no-op. [minScaleFactor]/[maxScaleFactor] then clamp the result.
+/// this is a no-op. [minScaleFactor]/[maxScaleFactor] clamp the result
+/// whether or not [respectAspectRatio] is set. [heightFromWidth] makes the
+/// height scale equal the width scale.
 ({double width, double height}) _computeScales(
   Size size,
   Size designSize, {
   bool respectAspectRatio = false,
   double? minScaleFactor,
   double? maxScaleFactor,
+  bool heightFromWidth = false,
 }) {
   final rawWidth = size.width / designSize.width;
-  final rawHeight = size.height / designSize.height;
-  if (!respectAspectRatio) return (width: rawWidth, height: rawHeight);
-
-  final deviceAspect = size.width / size.height;
-  final designAspect = designSize.width / designSize.height;
-  // 1 when the aspect ratios match, shrinking toward 0 as they diverge.
-  final aspectRatio = deviceAspect <= designAspect
-      ? deviceAspect / designAspect
-      : designAspect / deviceAspect;
-  final blend = 1 - aspectRatio;
-
-  final mean = (rawWidth + rawHeight) / 2;
-  var width = rawWidth + (mean - rawWidth) * blend;
-  var height = rawHeight + (mean - rawHeight) * blend;
+  final rawHeight = heightFromWidth
+      ? rawWidth
+      : size.height / designSize.height;
+  var width = rawWidth;
+  var height = rawHeight;
+  if (respectAspectRatio) {
+    final deviceAspect = size.width / size.height;
+    final designAspect = designSize.width / designSize.height;
+    // 1 when the aspect ratios match, shrinking toward 0 as they diverge.
+    final aspectRatio = deviceAspect <= designAspect
+        ? deviceAspect / designAspect
+        : designAspect / deviceAspect;
+    final blend = 1 - aspectRatio;
+    final mean = (rawWidth + rawHeight) / 2;
+    width = rawWidth + (mean - rawWidth) * blend;
+    height = rawHeight + (mean - rawHeight) * blend;
+  }
   if (minScaleFactor != null) {
     width = max(width, minScaleFactor);
     height = max(height, minScaleFactor);
@@ -86,6 +109,7 @@ class MKHelper {
   static double? _maxScaleFactor;
   static double? _minTextScaleFactor;
   static double? _maxTextScaleFactor;
+  static bool _heightFromWidth = false;
 
   /// Whether any input differs from what was last passed to [init].
   static bool changed(
@@ -96,7 +120,9 @@ class MKHelper {
     double? maxScaleFactor,
     double? minTextScaleFactor,
     double? maxTextScaleFactor,
+    bool heightFromWidth = false,
   }) =>
+      heightFromWidth != _heightFromWidth ||
       size != _size ||
       designSize != _designSize ||
       respectAspectRatio != _respectAspectRatio ||
@@ -119,6 +145,7 @@ class MKHelper {
     double? maxScaleFactor,
     double? minTextScaleFactor,
     double? maxTextScaleFactor,
+    bool heightFromWidth = false,
   }) {
     assert(
       designSize.width > 0 && designSize.height > 0,
@@ -131,12 +158,14 @@ class MKHelper {
     _maxScaleFactor = maxScaleFactor;
     _minTextScaleFactor = minTextScaleFactor;
     _maxTextScaleFactor = maxTextScaleFactor;
+    _heightFromWidth = heightFromWidth;
     final scales = _computeScales(
       size,
       designSize,
       respectAspectRatio: respectAspectRatio,
       minScaleFactor: minScaleFactor,
       maxScaleFactor: maxScaleFactor,
+      heightFromWidth: heightFromWidth,
     );
     var textScale = scales.width;
     if (minTextScaleFactor != null) {

@@ -15,6 +15,7 @@ class MKSizerModel extends InheritedModel<MKAspect> {
     this.maxScaleFactor,
     this.minTextScaleFactor,
     this.maxTextScaleFactor,
+    this.heightFromWidth = false,
     required super.child,
   });
 
@@ -30,12 +31,16 @@ class MKSizerModel extends InheritedModel<MKAspect> {
   final double? minTextScaleFactor;
   final double? maxTextScaleFactor;
 
+  /// `.h` uses the width scale (see [MKHeightMode.width]).
+  final bool heightFromWidth;
+
   ({double width, double height}) get _scales => _computeScales(
     size,
     designSize,
     respectAspectRatio: respectAspectRatio,
     minScaleFactor: minScaleFactor,
     maxScaleFactor: maxScaleFactor,
+    heightFromWidth: heightFromWidth,
   );
 
   double get scaleWidth => _scales.width;
@@ -64,6 +69,7 @@ class MKSizerModel extends InheritedModel<MKAspect> {
 
   @override
   bool updateShouldNotify(MKSizerModel old) =>
+      heightFromWidth != old.heightFromWidth ||
       size != old.size ||
       designSize != old.designSize ||
       respectAspectRatio != old.respectAspectRatio ||
@@ -77,22 +83,30 @@ class MKSizerModel extends InheritedModel<MKAspect> {
     MKSizerModel old,
     Set<MKAspect> dependencies,
   ) {
-    // Blending couples both axes together, so any input change can affect
-    // both scaleWidth and scaleHeight.
-    final blended = respectAspectRatio || old.respectAspectRatio;
-    final anyChanged =
-        size != old.size ||
-        designSize != old.designSize ||
+    // Blending, height-from-width, and clamps couple both axes, so any
+    // input change can affect both scaleWidth and scaleHeight.
+    final coupled =
+        respectAspectRatio ||
+        old.respectAspectRatio ||
+        heightFromWidth ||
+        old.heightFromWidth;
+    final optionsChanged =
+        heightFromWidth != old.heightFromWidth ||
+        respectAspectRatio != old.respectAspectRatio ||
         minScaleFactor != old.minScaleFactor ||
         maxScaleFactor != old.maxScaleFactor;
     final w =
-        blended && anyChanged ||
+        optionsChanged ||
+        (coupled && size != old.size) ||
         size.width != old.size.width ||
-        designSize.width != old.designSize.width;
+        designSize.width != old.designSize.width ||
+        (coupled && designSize != old.designSize);
     final h =
-        blended && anyChanged ||
+        optionsChanged ||
+        (coupled && size != old.size) ||
         size.height != old.size.height ||
-        designSize.height != old.designSize.height;
+        designSize.height != old.designSize.height ||
+        (coupled && designSize != old.designSize);
     final text =
         w ||
         minTextScaleFactor != old.minTextScaleFactor ||

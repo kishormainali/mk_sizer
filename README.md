@@ -9,7 +9,7 @@ MK Size helper created using concept of responsive_sizer and flutter_screen_util
 
 ```yaml
 dependencies:
-  mk_sizer: ^1.1.0
+  mk_sizer: ^1.2.0
 ```
 
 ## Usage
@@ -93,8 +93,34 @@ MKSizer(
 ```
 
 - `respectAspectRatio` blends the width/height scales toward each other as the device's aspect ratio diverges from `designSize`'s, so layouts stretch less on tablets. Default `false` (independent per-axis scaling).
-- `minScaleFactor` / `maxScaleFactor` clamp `.w`/`.h`/`.r` when `respectAspectRatio` is true.
+- `minScaleFactor` / `maxScaleFactor` clamp `.w`/`.h`/`.r` (with or without `respectAspectRatio`), so tablets and foldables don't get 2-3x UI.
 - `minTextScaleFactor` / `maxTextScaleFactor` clamp `.sp` independently, regardless of `respectAspectRatio`.
+
+### Android & consistent fonts
+<hr/>
+<br/>
+
+```dart
+MKSizer(
+  heightMode: MKHeightMode.safeArea, // or MKHeightMode.width
+  designSize: Size(430, 932),
+  designPadding: EdgeInsets.only(top: 59, bottom: 34), // bars inside the frame
+  minScaleFactor: 0.85,
+  maxScaleFactor: 1.3,
+  minTextScaleFactor: 0.9,
+  maxTextScaleFactor: 1.1,
+  minSystemTextScale: 0.9,
+  maxSystemTextScale: 1.3,
+  builder: (context) => MaterialApp(
+    theme: ThemeData(fontFamily: 'Inter'), // same font on both platforms
+    home: HomePage(),
+  ),
+);
+```
+
+- `heightMode`: tall Android phones (20:9+) inflate `.h` 15-30% over `.w`. `safeArea` subtracts system bars when `MKSizer` wraps the whole app; `width` makes `.h` use the width scale (never stretches vertically). Default `screen` is the original behavior. Design frames usually include the status bar/notch and home indicator, so with `safeArea` also pass `designPadding` (the bars inside your frame); then usable device area is compared with usable design area.
+- `minSystemTextScale` / `maxSystemTextScale` clamp the user's OS font-size setting (Android allows ~2x, iOS less) for all text below `MKSizer`, including inside `MaterialApp`. `minTextScaleFactor` / `maxTextScaleFactor` clamp `.sp` (screen-size scaling); the two multiply.
+- Fonts differ because Android defaults to Roboto and iOS to SF. Bundle one `fontFamily` in your theme for identical glyph widths and line heights.
 
 ### Responsive builder
 <hr/>

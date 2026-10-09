@@ -24,6 +24,12 @@ class MyApp extends StatelessWidget {
         // No floor: text should still shrink on small screens, just not
         // balloon past the design size on big ones.
         maxTextScaleFactor: 1.05,
+        // Tall Android phones: ignore system bars and keep .h in step with .w.
+        heightMode: MKHeightMode.safeArea,
+        // Android's font-size setting goes much higher than iOS's; cap it so
+        // text looks the same on both.
+        minSystemTextScale: 0.9,
+        maxSystemTextScale: 1.3,
         builder: (context) => const HomePage(),
       ),
     );

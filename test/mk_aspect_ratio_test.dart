@@ -118,7 +118,7 @@ void main() {
   });
 
   testWidgets(
-    'min/maxScaleFactor have no effect when respectAspectRatio is false',
+    'min/maxScaleFactor clamp even when respectAspectRatio is false',
     (t) async {
       late double w, h;
       await pump(
@@ -132,7 +132,7 @@ void main() {
         minScaleFactor: 5.5,
         maxScaleFactor: 6,
       );
-      expect([w, h], [80, 40]);
+      expect([w, h], [60, 55]);
     },
   );
 

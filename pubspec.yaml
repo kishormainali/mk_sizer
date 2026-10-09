@@ -1,6 +1,6 @@
 name: mk_sizer
 description: Adaptive Size helper created using concept of responsive_sizer and flutter_screen_util package.
-version: 1.1.0
+version: 1.2.0
 homepage: https://github.com/kishormainali/mk_sizer
 repository: https://github.com/kishormainali/mk_sizer
 issue_tracker: https://github.com/kishormainali/mk_sizer/issues
