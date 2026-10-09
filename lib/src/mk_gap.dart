@@ -297,9 +297,7 @@ class _RenderMKGap extends RenderBox {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DoubleProperty('mainAxisExtent', _mainAxisExtent));
-    properties.add(
-      DoubleProperty('crossAxisExtent', _resolvedCrossAxisExtent),
-    );
+    properties.add(DoubleProperty('crossAxisExtent', _resolvedCrossAxisExtent));
     properties.add(ColorProperty('color', color));
     properties.add(EnumProperty<Axis>('fallbackDirection', fallbackDirection));
   }

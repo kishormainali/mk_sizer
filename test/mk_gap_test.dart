@@ -61,9 +61,7 @@ void main() {
     expect(size.width, 0);
   });
 
-  testWidgets('num.mkGap returns an MKGap scaled for its axis', (
-    tester,
-  ) async {
+  testWidgets('num.mkGap returns an MKGap scaled for its axis', (tester) async {
     await pump(
       tester,
       deviceSize,
