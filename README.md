@@ -9,7 +9,7 @@ MK Size helper created using concept of responsive_sizer and flutter_screen_util
 
 ```yaml
 dependencies:
-  mk_sizer: ^1.2.0
+  mk_sizer: ^1.3.0
 ```
 
 ## Usage
@@ -68,13 +68,17 @@ Text(
 Column(
   children: [
     Text('Above'),
-    10.gap,
+    10.mkGap,
     Text('Below'),
   ],
 )
 ```
 
-`10.gap` is a responsive [`Gap`](https://pub.dev/packages/gap)-like widget: it detects whether its parent `Flex` is a `Row` or `Column` and scales with `.w` or `.h` accordingly, so the same call works in either direction.
+`10.mkGap` is a responsive [`Gap`](https://pub.dev/packages/gap)-like widget: it detects whether its parent `Flex` is a `Row` or `Column` and scales with `.w` or `.h` accordingly, so the same call works in either direction. It's named `mkGap` rather than `gap` to avoid colliding with other packages' `num` extensions of the same name (e.g. `fp_extensions`, which depends on `package:gap`).
+
+`MKGap` also mirrors `package:gap`'s full API: `MKGap.expand` fills the cross axis (like `Gap.expand`), `MKGap.max` takes at most its value and shrinks if the parent `Flex` runs out of room (like `MaxGap`), and `MKGap.maxExpand` combines both.
+
+For sliver-based scroll views (`CustomScrollView` and friends), use `10.mkSliverGap` / `MKSliverGap(10)` — the sliver equivalent of `MKGap`, matching `package:gap`'s `SliverGap`. It scales with `.w` when the scroll view's axis is horizontal and `.h` when vertical.
 
 ### Aspect ratio and scale limits
 <hr/>

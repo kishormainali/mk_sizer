@@ -3,7 +3,7 @@
 > Flutter package for responsive/adaptive sizing. Wrap the app in `MKSizer`, pick
 > a design size (default `360x690`, the Figma/XD frame the numbers below were
 > designed against), then scale any number against the current screen with
-> extension getters like `.w`, `.h`, `.r`, `.sp`, and `.gap`.
+> extension getters like `.w`, `.h`, `.r`, `.sp`, and `.mkGap`.
 
 Package name: `mk_sizer`. Import with `package:mk_sizer/mk_sizer.dart`.
 Repository: https://github.com/kishormainali/mk_sizer
@@ -66,12 +66,16 @@ Call these on any `num` literal, e.g. `20.w`, `15.sp`.
 - `.verticalSpaceRadius` — `SizedBox(height: this.r)`.
 - `.horizontalSpace` — `SizedBox(width: this.w)`.
 - `.horizontalSpaceRadius` — `SizedBox(width: this.r)`.
-- `.gap` — a responsive, axis-aware gap widget (`MKGap`, see below);
-  `10.gap` inside a `Row`/`Column`.
+- `.mkGap` — a responsive, axis-aware gap widget (`MKGap`, see below);
+  `10.mkGap` inside a `Row`/`Column`. Named `mkGap` rather than `gap` to avoid
+  colliding with other packages' `num` extensions of the same name (e.g.
+  `fp_extensions`, which depends on `package:gap`).
+- `.mkSliverGap` — the sliver equivalent of `.mkGap` (`MKSliverGap`, see
+  below); `10.mkSliverGap` inside a `CustomScrollView`'s `slivers:`.
 
 ## Responsive gap (`MKGap`, in `lib/src/mk_gap.dart`)
 
-`10.gap` returns an `MKGap`, a self-contained reimplementation of
+`10.mkGap` returns an `MKGap`, a self-contained reimplementation of
 `package:gap`'s `Gap` (no dependency on that package). It inspects its actual
 `RenderFlex` parent at layout time to detect whether it sits in a `Row`
 (horizontal) or `Column`/`Flex` (vertical) — or a `Scrollable`'s
@@ -82,14 +86,35 @@ scales the value accordingly:
 - Vertical parent → scaled with the same logic as `.h`.
 - Neither detected → falls back to `.r`.
 
-So the same `10.gap` call is correct whether it ends up between `Row` or
+So the same `10.mkGap` call is correct whether it ends up between `Row` or
 `Column` children, without needing a `.w`/`.h` suffix. Construct it directly
 as `MKGap(10)` if you're not chaining off a numeric literal.
 
-Constraint (inherited from the `gap` package's design): `MKGap` must be a
-direct-ish descendant of a `Row`/`Column`/`Flex` — only `StatelessWidget`s or
-`StatefulWidget`s may sit between it and that `Flex` — or a descendant of a
-`Scrollable`. Otherwise it throws `FlutterError` at layout time.
+`MKGap` mirrors `package:gap`'s full API surface via named constructors:
+
+- `MKGap(value, {crossAxisExtent, color})` — the base gap; `crossAxisExtent`
+  (optional) is scaled on the opposite axis and defaults to `0`.
+- `MKGap.expand(value, {color})` — like `Gap.expand`: fills the cross axis.
+- `MKGap.max(value, {crossAxisExtent, color})` — like `MaxGap`: wraps itself
+  in a `Flexible` so it takes at most `value`, shrinking if the parent `Flex`
+  doesn't have enough room.
+- `MKGap.maxExpand(value, {color})` — like `MaxGap.expand`: combines both.
+
+Constraint (inherited from the `gap` package's design): the non-`.max`
+variants must be a direct-ish descendant of a `Row`/`Column`/`Flex` — only
+`StatelessWidget`s or `StatefulWidget`s may sit between it and that `Flex` —
+or a descendant of a `Scrollable`. Otherwise it throws `FlutterError` at
+layout time. `.max`/`.maxExpand` must sit directly inside a `Flex` (they wrap
+themselves in `Flexible`, like `MaxGap`).
+
+## Responsive sliver gap (`MKSliverGap`, in `lib/src/mk_sliver_gap.dart`)
+
+`10.mkSliverGap` returns an `MKSliverGap`, the sliver equivalent of `MKGap`
+(matching `package:gap`'s `SliverGap`) for use as a direct child of a sliver
+list — e.g. inside a `CustomScrollView`'s `slivers:`. Unlike `MKGap`, it
+doesn't need a `RenderFlex`/`Scrollable` ancestor to detect its axis: a
+sliver's `SliverConstraints.axis` always tells it directly, so it scales with
+`.w` when that axis is horizontal and `.h` when vertical.
 
 ## `EdgeInsets` extension (`MKEdgeInsetsX`, in `lib/src/mk_extension.dart`)
 
@@ -136,12 +161,12 @@ tree (whereas the `num` extensions above degrade to 1:1 instead of throwing).
 
 ## Notes for generating code against this package
 
-- Prefer the `num` extensions (`.w`, `.h`, `.r`, `.sp`, `.gap`, …) for typical
-  UI code; reach for `context.*` only when the caller explicitly wants
-  narrower rebuilds and has set `rebuildOnChange: false`.
+- Prefer the `num` extensions (`.w`, `.h`, `.r`, `.sp`, `.mkGap`, …) for
+  typical UI code; reach for `context.*` only when the caller explicitly
+  wants narrower rebuilds and has set `rebuildOnChange: false`.
 - Use `.sp` for font sizes, `.r` for radii/icon sizes/anything meant to look
   the same regardless of aspect ratio, `.w`/`.h` for explicit
-  width/height dimensions, and `.gap` for spacing between `Row`/`Column`
+  width/height dimensions, and `.mkGap` for spacing between `Row`/`Column`
   children instead of a manually-axed `SizedBox`.
 - Don't wrap the same numeric literal in both a `num` extension and
   `MKEdgeInsets`/`MKEdgeInsetsDirectional` — those constructors already scale

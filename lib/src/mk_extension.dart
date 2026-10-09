@@ -29,8 +29,17 @@ extension MKSizeExt on num {
       MKHelper().setHorizontalSpacingRadius(this);
 
   /// A responsive gap (see [MKGap]) that fits itself to the direction of
-  /// its parent `Row`/`Column`, e.g. `10.gap`.
-  Widget get gap => MKGap(this);
+  /// its parent `Row`/`Column`, e.g. `10.mkGap`.
+  ///
+  /// Named `mkGap` rather than `gap` to avoid colliding with `num` gap
+  /// extensions from other packages (e.g. `fp_extensions`, which depends on
+  /// `package:gap`).
+  Widget get mkGap => MKGap(this);
+
+  /// A responsive sliver gap (see [MKSliverGap]) for use inside a
+  /// [CustomScrollView] or other sliver-based scroll view, e.g.
+  /// `10.mkSliverGap`.
+  Widget get mkSliverGap => MKSliverGap(this);
 }
 
 extension MKEdgeInsetsX on EdgeInsets {

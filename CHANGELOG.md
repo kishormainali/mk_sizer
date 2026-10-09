@@ -1,3 +1,9 @@
+## 1.3.0
+
+* **Breaking:** renamed the `num` extension `.gap` to `.mkGap` to avoid colliding with other packages' `num` extensions of the same name (e.g. `fp_extensions`, which depends on `package:gap`).
+* `MKGap` now mirrors `package:gap`'s full API: added `MKGap.expand` (fills the cross axis, like `Gap.expand`), `MKGap.max` (takes at most its value, shrinking if the parent `Flex` runs out of room, like `MaxGap`), `MKGap.maxExpand` (combines both), and an optional `crossAxisExtent` on the base constructor.
+* Added `MKSliverGap` (and `10.mkSliverGap`), the sliver equivalent of `MKGap` for `CustomScrollView`/sliver-based scroll views, matching `package:gap`'s `SliverGap`.
+
 ## 1.2.0
 
 * `minScaleFactor` / `maxScaleFactor` now clamp `.w` / `.h` / `.r` even when `respectAspectRatio` is false (previously silently ignored), so tablets/foldables can be capped.
