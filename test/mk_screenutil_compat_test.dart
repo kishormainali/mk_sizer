@@ -50,21 +50,13 @@ void main() {
       expect([w, sp], [80, 80]);
     });
 
-    testWidgets('true: .sp uses the smaller of width/height scales', (
-      t,
-    ) async {
+    testWidgets('true: .sp uses the smaller of width/height scales', (t) async {
       late double w, h, sp;
-      await pump(
-        t,
-        deviceSize,
-        designSize,
-        (c) {
-          w = 10.w;
-          h = 10.h;
-          sp = 10.sp;
-        },
-        minTextAdapt: true,
-      );
+      await pump(t, deviceSize, designSize, (c) {
+        w = 10.w;
+        h = 10.h;
+        sp = 10.sp;
+      }, minTextAdapt: true);
       expect([w, h, sp], [80, 40, 40]);
     });
 
@@ -121,9 +113,16 @@ void main() {
       t,
     ) async {
       late double h;
-      await pump(t, const Size(360, 400), designSize, (c) {
-        h = 690.h;
-      }, splitScreenMode: true, maxScaleFactor: 0.9);
+      await pump(
+        t,
+        const Size(360, 400),
+        designSize,
+        (c) {
+          h = 690.h;
+        },
+        splitScreenMode: true,
+        maxScaleFactor: 0.9,
+      );
       // floored scale (700/690 ~= 1.0145) still gets capped to 0.9.
       expect(h, closeTo(621, 0.001));
     });

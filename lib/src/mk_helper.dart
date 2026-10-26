@@ -53,7 +53,9 @@ const double _splitScreenMinHeight = 700;
       ? max(size.height, _splitScreenMinHeight)
       : size.height;
   final rawWidth = size.width / designSize.width;
-  final rawHeight = heightFromWidth ? rawWidth : effectiveHeight / designSize.height;
+  final rawHeight = heightFromWidth
+      ? rawWidth
+      : effectiveHeight / designSize.height;
   var width = rawWidth;
   var height = rawHeight;
   if (respectAspectRatio) {

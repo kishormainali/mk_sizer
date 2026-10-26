@@ -47,8 +47,7 @@ class _MyAppState extends State<MyApp> {
           minTextAdapt: _minTextAdapt,
           splitScreenMode: _splitScreenMode,
           onMinTextAdaptChanged: (v) => setState(() => _minTextAdapt = v),
-          onSplitScreenModeChanged: (v) =>
-              setState(() => _splitScreenMode = v),
+          onSplitScreenModeChanged: (v) => setState(() => _splitScreenMode = v),
         ),
       ),
     );
@@ -169,7 +168,10 @@ class HomePage extends StatelessWidget {
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
                     dense: true,
-                    title: Text('minTextAdapt', style: TextStyle(fontSize: 14.sp)),
+                    title: Text(
+                      'minTextAdapt',
+                      style: TextStyle(fontSize: 14.sp),
+                    ),
                     subtitle: Text(
                       '.sp uses min(scaleWidth, scaleHeight) instead of '
                       'scaleWidth alone, like .r',
