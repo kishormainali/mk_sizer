@@ -5,8 +5,17 @@ import 'responsive_button.dart';
 
 void main() => runApp(const MyApp());
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  // flutter_screenutil-compat toggles, surfaced live in the demo UI below.
+  bool _minTextAdapt = false;
+  bool _splitScreenMode = false;
 
   @override
   Widget build(BuildContext context) {
@@ -30,14 +39,35 @@ class MyApp extends StatelessWidget {
         // text looks the same on both.
         minSystemTextScale: 0.9,
         maxSystemTextScale: 1.3,
-        builder: (context) => const HomePage(),
+        // flutter_screenutil-compat: see the 'flutter_screenutil compatibility'
+        // card below for what these do.
+        minTextAdapt: _minTextAdapt,
+        splitScreenMode: _splitScreenMode,
+        builder: (context) => HomePage(
+          minTextAdapt: _minTextAdapt,
+          splitScreenMode: _splitScreenMode,
+          onMinTextAdaptChanged: (v) => setState(() => _minTextAdapt = v),
+          onSplitScreenModeChanged: (v) =>
+              setState(() => _splitScreenMode = v),
+        ),
       ),
     );
   }
 }
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  const HomePage({
+    super.key,
+    required this.minTextAdapt,
+    required this.splitScreenMode,
+    required this.onMinTextAdaptChanged,
+    required this.onSplitScreenModeChanged,
+  });
+
+  final bool minTextAdapt;
+  final bool splitScreenMode;
+  final ValueChanged<bool> onMinTextAdaptChanged;
+  final ValueChanged<bool> onSplitScreenModeChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -129,6 +159,53 @@ class HomePage extends StatelessWidget {
             _Card(
               title: 'Responsive button design system',
               child: const ResponsiveButtonGallery(),
+            ),
+            20.h.verticalSpace,
+            _Card(
+              title: 'flutter_screenutil compatibility',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                    title: Text('minTextAdapt', style: TextStyle(fontSize: 14.sp)),
+                    subtitle: Text(
+                      '.sp uses min(scaleWidth, scaleHeight) instead of '
+                      'scaleWidth alone, like .r',
+                      style: TextStyle(fontSize: 11.sp),
+                    ),
+                    value: minTextAdapt,
+                    onChanged: onMinTextAdaptChanged,
+                  ),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                    title: Text(
+                      'splitScreenMode',
+                      style: TextStyle(fontSize: 14.sp),
+                    ),
+                    subtitle: Text(
+                      'Floors window height at 700 logical px before scaling '
+                      '.h/.r (only visible once the window is shorter than '
+                      'that, e.g. Android/iPad split-screen)',
+                      style: TextStyle(fontSize: 11.sp),
+                    ),
+                    value: splitScreenMode,
+                    onChanged: onSplitScreenModeChanged,
+                  ),
+                  8.h.verticalSpace,
+                  Text(
+                    '100.w = ${100.w.toStringAsFixed(1)}   '
+                    '100.h = ${100.h.toStringAsFixed(1)}   '
+                    '100.sp = ${100.sp.toStringAsFixed(1)}',
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

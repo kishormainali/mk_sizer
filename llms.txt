@@ -40,6 +40,13 @@ MKSizer(
   with `respectAspectRatio`).
 - `minTextScaleFactor` / `maxTextScaleFactor`: clamp the `.sp` scale
   independently of layout scales (always applied; `context.sp` too).
+- `minTextAdapt` (default `false`): bases `.sp` on `min(scaleWidth,
+  scaleHeight)` instead of `scaleWidth` alone (like `.r`). Matches
+  flutter_screenutil's `minTextAdapt`.
+- `splitScreenMode` (default `false`): floors the window height used for
+  scaling at 700 logical pixels before computing `.h`/`.r`, so a
+  split-screen/multi-window layout doesn't keep shrinking `.h` below that.
+  `.w` is unaffected. Matches flutter_screenutil's `splitScreenMode`.
 
 ## Responsive builder (`lib/src/mk_responsive_builder.dart`)
 

@@ -23,6 +23,10 @@ enum MKHeightMode {
   width,
 }
 
+/// Floor applied to the window height when `splitScreenMode` is on, matching
+/// flutter_screenutil's hardcoded threshold.
+const double _splitScreenMinHeight = 700;
+
 /// Raw per-axis scale of [size] against [designSize].
 ///
 /// When [respectAspectRatio] is true, width/height are blended toward their
@@ -32,7 +36,10 @@ enum MKHeightMode {
 /// mockup). On a device whose aspect ratio matches the design's exactly,
 /// this is a no-op. [minScaleFactor]/[maxScaleFactor] clamp the result
 /// whether or not [respectAspectRatio] is set. [heightFromWidth] makes the
-/// height scale equal the width scale.
+/// height scale equal the width scale. [splitScreenMode] floors the height
+/// used for scaling at [_splitScreenMinHeight] logical pixels, so a window
+/// shrunk by Android/iPad split-screen or desktop multi-window doesn't keep
+/// shrinking `.h`/`.r` past that point.
 ({double width, double height}) _computeScales(
   Size size,
   Size designSize, {
@@ -40,15 +47,17 @@ enum MKHeightMode {
   double? minScaleFactor,
   double? maxScaleFactor,
   bool heightFromWidth = false,
+  bool splitScreenMode = false,
 }) {
+  final effectiveHeight = splitScreenMode
+      ? max(size.height, _splitScreenMinHeight)
+      : size.height;
   final rawWidth = size.width / designSize.width;
-  final rawHeight = heightFromWidth
-      ? rawWidth
-      : size.height / designSize.height;
+  final rawHeight = heightFromWidth ? rawWidth : effectiveHeight / designSize.height;
   var width = rawWidth;
   var height = rawHeight;
   if (respectAspectRatio) {
-    final deviceAspect = size.width / size.height;
+    final deviceAspect = size.width / effectiveHeight;
     final designAspect = designSize.width / designSize.height;
     // 1 when the aspect ratios match, shrinking toward 0 as they diverge.
     final aspectRatio = deviceAspect <= designAspect
@@ -110,6 +119,8 @@ class MKHelper {
   static double? _minTextScaleFactor;
   static double? _maxTextScaleFactor;
   static bool _heightFromWidth = false;
+  static bool _minTextAdapt = false;
+  static bool _splitScreenMode = false;
 
   /// Whether any input differs from what was last passed to [init].
   static bool changed(
@@ -121,6 +132,8 @@ class MKHelper {
     double? minTextScaleFactor,
     double? maxTextScaleFactor,
     bool heightFromWidth = false,
+    bool minTextAdapt = false,
+    bool splitScreenMode = false,
   }) =>
       heightFromWidth != _heightFromWidth ||
       size != _size ||
@@ -129,14 +142,18 @@ class MKHelper {
       minScaleFactor != _minScaleFactor ||
       maxScaleFactor != _maxScaleFactor ||
       minTextScaleFactor != _minTextScaleFactor ||
-      maxTextScaleFactor != _maxTextScaleFactor;
+      maxTextScaleFactor != _maxTextScaleFactor ||
+      minTextAdapt != _minTextAdapt ||
+      splitScreenMode != _splitScreenMode;
 
   /// Sets the scale factors for a screen of [size] against [designSize].
   ///
   /// See [_computeScales] for [respectAspectRatio]/[minScaleFactor]/
-  /// [maxScaleFactor]. [minTextScaleFactor]/[maxTextScaleFactor] separately
-  /// clamp the text scale (`.sp`), so text can be kept more (or less)
-  /// uniform across devices than layout dimensions.
+  /// [maxScaleFactor]/[splitScreenMode]. [minTextScaleFactor]/
+  /// [maxTextScaleFactor] separately clamp the text scale (`.sp`), so text
+  /// can be kept more (or less) uniform across devices than layout
+  /// dimensions. [minTextAdapt] bases `.sp` on the smaller of the width/
+  /// height scales (like `.r`) instead of the width scale alone.
   static void init({
     required Size size,
     Size designSize = defaultSize,
@@ -146,6 +163,8 @@ class MKHelper {
     double? minTextScaleFactor,
     double? maxTextScaleFactor,
     bool heightFromWidth = false,
+    bool minTextAdapt = false,
+    bool splitScreenMode = false,
   }) {
     assert(
       designSize.width > 0 && designSize.height > 0,
@@ -159,6 +178,8 @@ class MKHelper {
     _minTextScaleFactor = minTextScaleFactor;
     _maxTextScaleFactor = maxTextScaleFactor;
     _heightFromWidth = heightFromWidth;
+    _minTextAdapt = minTextAdapt;
+    _splitScreenMode = splitScreenMode;
     final scales = _computeScales(
       size,
       designSize,
@@ -166,8 +187,11 @@ class MKHelper {
       minScaleFactor: minScaleFactor,
       maxScaleFactor: maxScaleFactor,
       heightFromWidth: heightFromWidth,
+      splitScreenMode: splitScreenMode,
     );
-    var textScale = scales.width;
+    var textScale = minTextAdapt
+        ? min(scales.width, scales.height)
+        : scales.width;
     if (minTextScaleFactor != null) {
       textScale = max(textScale, minTextScaleFactor);
     }
@@ -191,7 +215,8 @@ class MKHelper {
 
   double setHeight(num height) => height * _scaleHeight;
 
-  /// Text scales with width only (unlike [radius], which uses the smaller axis).
+  /// Text scales with width only, unless `minTextAdapt` is set, in which case
+  /// it uses the smaller of the width/height scales (like [radius]).
   double setSp(num sp) => sp * _textScaleFactor;
 
   double radius(num r) => r * _scaleRadius;

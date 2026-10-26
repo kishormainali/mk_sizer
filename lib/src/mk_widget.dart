@@ -32,6 +32,8 @@ class MKSizer extends StatelessWidget {
     this.designPadding = EdgeInsets.zero,
     this.minSystemTextScale,
     this.maxSystemTextScale,
+    this.minTextAdapt = false,
+    this.splitScreenMode = false,
   });
 
   final WidgetBuilder builder;
@@ -96,6 +98,18 @@ class MKSizer extends StatelessWidget {
   /// Upper bound for the system font scale. See [minSystemTextScale].
   final double? maxSystemTextScale;
 
+  /// Bases `.sp` on the smaller of the width/height scales (like `.r`)
+  /// instead of the width scale alone, matching flutter_screenutil's
+  /// `minTextAdapt`. Useful when text must not grow too large on screens
+  /// that are wide but short.
+  final bool minTextAdapt;
+
+  /// Floors the window height used for scaling at 700 logical pixels (the
+  /// same threshold flutter_screenutil's `splitScreenMode` uses), so a
+  /// window shrunk by Android/iPad split-screen or desktop multi-window
+  /// doesn't keep shrinking `.h`/`.r` past that point. `.w` is unaffected.
+  final bool splitScreenMode;
+
   @override
   Widget build(BuildContext context) {
     Widget layout() => LayoutBuilder(
@@ -143,6 +157,8 @@ class MKSizer extends StatelessWidget {
           minTextScaleFactor: minTextScaleFactor,
           maxTextScaleFactor: maxTextScaleFactor,
           heightFromWidth: heightFromWidth,
+          minTextAdapt: minTextAdapt,
+          splitScreenMode: splitScreenMode,
         );
         MKHelper.init(
           size: size,
@@ -153,6 +169,8 @@ class MKSizer extends StatelessWidget {
           minTextScaleFactor: minTextScaleFactor,
           maxTextScaleFactor: maxTextScaleFactor,
           heightFromWidth: heightFromWidth,
+          minTextAdapt: minTextAdapt,
+          splitScreenMode: splitScreenMode,
         );
         if (rebuildOnChange && changed) _markSubtreeDirty(context as Element);
         return MKSizerModel(
@@ -163,6 +181,8 @@ class MKSizer extends StatelessWidget {
           maxScaleFactor: maxScaleFactor,
           minTextScaleFactor: minTextScaleFactor,
           maxTextScaleFactor: maxTextScaleFactor,
+          minTextAdapt: minTextAdapt,
+          splitScreenMode: splitScreenMode,
           heightFromWidth: heightFromWidth,
           child: _clampSystemText(context, Builder(builder: builder)),
         );

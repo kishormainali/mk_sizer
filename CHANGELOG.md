@@ -1,3 +1,10 @@
+## 1.4.0
+
+* Added `MKSizer.minTextAdapt` (default `false`): bases `.sp` on `min(scaleWidth, scaleHeight)` instead of `scaleWidth` alone, like `.r` does. Matches `flutter_screenutil`'s `minTextAdapt`.
+* Added `MKSizer.splitScreenMode` (default `false`): floors the window height used for scaling at 700 logical pixels before computing `.h`/`.r`, so a split-screen/multi-window layout doesn't keep shrinking `.h` below that. `.w` is unaffected. Matches `flutter_screenutil`'s `splitScreenMode`, including its hardcoded 700px threshold.
+* Both options compose with `respectAspectRatio`/`minScaleFactor`/`maxScaleFactor`.
+* Added a live "flutter_screenutil compatibility" demo card to the example app with toggles for both options.
+
 ## 1.3.0
 
 * **Breaking:** renamed the `num` extension `.gap` to `.mkGap` to avoid colliding with other packages' `num` extensions of the same name (e.g. `fp_extensions`, which depends on `package:gap`).

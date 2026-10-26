@@ -16,6 +16,8 @@ class MKSizerModel extends InheritedModel<MKAspect> {
     this.minTextScaleFactor,
     this.maxTextScaleFactor,
     this.heightFromWidth = false,
+    this.minTextAdapt = false,
+    this.splitScreenMode = false,
     required super.child,
   });
 
@@ -34,6 +36,15 @@ class MKSizerModel extends InheritedModel<MKAspect> {
   /// `.h` uses the width scale (see [MKHeightMode.width]).
   final bool heightFromWidth;
 
+  /// Bases [scaleText] on the smaller of [scaleWidth]/[scaleHeight] (like
+  /// [scaleRadius]) instead of [scaleWidth] alone.
+  final bool minTextAdapt;
+
+  /// Floors the window height used for scaling at 700 logical pixels, so a
+  /// split-screen/multi-window layout doesn't keep shrinking `.h`/`.r` past
+  /// that point. See [_computeScales].
+  final bool splitScreenMode;
+
   ({double width, double height}) get _scales => _computeScales(
     size,
     designSize,
@@ -41,6 +52,7 @@ class MKSizerModel extends InheritedModel<MKAspect> {
     minScaleFactor: minScaleFactor,
     maxScaleFactor: maxScaleFactor,
     heightFromWidth: heightFromWidth,
+    splitScreenMode: splitScreenMode,
   );
 
   double get scaleWidth => _scales.width;
@@ -50,7 +62,7 @@ class MKSizerModel extends InheritedModel<MKAspect> {
   double get scaleRadius => min(scaleWidth, scaleHeight);
 
   double get scaleText {
-    var text = scaleWidth;
+    var text = minTextAdapt ? min(scaleWidth, scaleHeight) : scaleWidth;
     if (minTextScaleFactor != null) text = max(text, minTextScaleFactor!);
     if (maxTextScaleFactor != null) text = min(text, maxTextScaleFactor!);
     return text;
@@ -76,7 +88,9 @@ class MKSizerModel extends InheritedModel<MKAspect> {
       minScaleFactor != old.minScaleFactor ||
       maxScaleFactor != old.maxScaleFactor ||
       minTextScaleFactor != old.minTextScaleFactor ||
-      maxTextScaleFactor != old.maxTextScaleFactor;
+      maxTextScaleFactor != old.maxTextScaleFactor ||
+      minTextAdapt != old.minTextAdapt ||
+      splitScreenMode != old.splitScreenMode;
 
   @override
   bool updateShouldNotifyDependent(
@@ -94,7 +108,8 @@ class MKSizerModel extends InheritedModel<MKAspect> {
         heightFromWidth != old.heightFromWidth ||
         respectAspectRatio != old.respectAspectRatio ||
         minScaleFactor != old.minScaleFactor ||
-        maxScaleFactor != old.maxScaleFactor;
+        maxScaleFactor != old.maxScaleFactor ||
+        splitScreenMode != old.splitScreenMode;
     final w =
         optionsChanged ||
         (coupled && size != old.size) ||
@@ -107,10 +122,13 @@ class MKSizerModel extends InheritedModel<MKAspect> {
         size.height != old.size.height ||
         designSize.height != old.designSize.height ||
         (coupled && designSize != old.designSize);
+    final textDependsOnHeight = minTextAdapt || old.minTextAdapt;
     final text =
         w ||
+        (textDependsOnHeight && h) ||
         minTextScaleFactor != old.minTextScaleFactor ||
-        maxTextScaleFactor != old.maxTextScaleFactor;
+        maxTextScaleFactor != old.maxTextScaleFactor ||
+        minTextAdapt != old.minTextAdapt;
     return (dependencies.contains(MKAspect.width) && w) ||
         (dependencies.contains(MKAspect.height) && h) ||
         (dependencies.contains(MKAspect.text) && text);
